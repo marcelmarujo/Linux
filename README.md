@@ -1,2 +1,3 @@
-# exp_up
-Created to share public projects created to improve my technical experience
+### Linux Config
+
+Criar um script onde toda a infraestrutura de usuários, grupos de usuários, diretórios e permissões serão criadas automaticamente
