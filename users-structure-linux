@@ -7,51 +7,73 @@
 
 #!/bin/bash
 
-echo "Criacao de diretorios"
+# Função para verificar se um comando foi executado com sucesso
+check_status() {
+    if [ $? -eq 0 ]; then
+        echo "Sucesso: $1"
+    else
+        echo "Erro: $1"
+        exit 1
+    fi
+}
 
-mkdir /publico
-mkdir /adm
-mkdir /ven
-mkdir /sec
+echo "Início da criação de diretórios e configuração de usuários"
 
-echo  "Criando grupo de ususarios"
+# Criação de diretórios
+echo "Criando diretórios..."
+mkdir -p /publico
+mkdir -p /adm
+mkdir -p /ven
+mkdir -p /sec
+check_status "Criação dos diretórios"
 
+# Criação de grupos de usuários
+echo "Criando grupos de usuários..."
 groupadd GRP_ADM
 groupadd GRP_VEN
 groupadd GRP_SEC
+check_status "Criação dos grupos de usuários"
 
-echo "Criando Usuarios!!!"
+# Função para criar um usuário
+create_user() {
+    local username=$1
+    local comment=$2
+    local group=$3
+    local password=$4
 
-useradd carlos -c "Marcel" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_ADM
-passwd carlos -e
-useradd maria -c "Natalia" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_ADM
-passwd maria -e
-useradd joao -c "Joao" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_ADM
-passwd joao -e
+    echo "Criando usuário $username..."
+    useradd "$username" -c "$comment" -s /bin/bash -m -p "$(openssl passwd -1 "$password")" -G "$group"
+    check_status "Criação do usuário $username"
 
-useradd debora -c "Debora" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_VEN
-passwd debora -e
-useradd sebastiana -c "Sebastiana" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_VEN
-passwd sebastiana -e
-useradd roberto -c "Roberto" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_VEN
-passwd roberto -e
+    passwd "$username" -e
+    check_status "Desbloqueio do usuário $username"
+}
 
-useradd josefina -c "Arakaki" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_SEC
-passwd josefina -e
-useradd amanda -c "Amanda" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_SEC
-passwd amanda -e
-useradd rogerio -c "Rogerio" -s /bin/bash -m -p $(openssl passwd Senha123) -G GRP_SEC
-passwd rogerio -e
+# Criação de usuários
+echo "Criando usuários..."
+create_user carlos "Marcel" "GRP_ADM" "Senha123"
+create_user maria "Natalia" "GRP_ADM" "Senha123"
+create_user joao "Joao" "GRP_ADM" "Senha123"
 
-echo "Especificacoes de permissoes, nos grupos e com cada usuario!!!"
+create_user debora "Debora" "GRP_VEN" "Senha123"
+create_user sebastiana "Sebastiana" "GRP_VEN" "Senha123"
+create_user roberto "Roberto" "GRP_VEN" "Senha123"
 
+create_user josefina "Arakaki" "GRP_SEC" "Senha123"
+create_user amanda "Amanda" "GRP_SEC" "Senha123"
+create_user rogerio "Rogerio" "GRP_SEC" "Senha123"
+
+# Configuração de permissões nos diretórios
+echo "Configuração de permissões nos diretórios..."
 chown root:GRP_ADM /adm
 chown root:GRP_VEN /ven
 chown root:GRP_SEC /sec
+check_status "Configuração de propriedade dos diretórios"
 
 chmod 777 /publico
 chmod 770 /adm
 chmod 770 /ven
 chmod 770 /sec
+check_status "Configuração de permissões nos diretórios"
 
-echo "Finalizado !!!"
+echo "Script finalizado com sucesso!!!"
